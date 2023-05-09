@@ -33,17 +33,17 @@ import joblib
 
 
 x_numericos = {'latitude': 0, 'longitude': 0, 'accommodates': 0, 'bathrooms': 0, 'bedrooms': 0, 'beds': 0, 'extra_people': 0,
-               'minimum_nights': 0, 'ano': 0, 'mes': 0, 'n_amenities': 0, 'host_listings_count': 0}
+               'minimum_nights': 0, 'ano': 0, 'mes': 0, 'nr_amenities': 0, 'host_listings_count': 0}
 
 x_tf = {'host_is_superhost': 0, 'instant_bookable': 0}
 
-x_listas = {'property_type': ['Apartment', 'Bed and breakfast', 'Condominium', 'Guest suite', 'Guesthouse', 'Hostel', 'House', 'Loft', 'Outros', 'Serviced apartment'],
+x_listas = {'property_type': ['Apartment', 'Bed and breakfast', 'Condominium', 'Guest suite', 'Guesthouse', 'Hostel', 'House', 'Loft', 'Other', 'Serviced apartment'],
             'room_type': ['Entire home/apt', 'Hotel room', 'Private room', 'Shared room'],
-            'cancelation_policy': ['flexible', 'moderate', 'strict', 'strict_14_with_grace_period']
-            }
+            'cancellation_policy': ['flexible', 'moderate', 'strict', 'strict_14_with_grace_period'],
+            'bed_type': ['Others', 'Real Bed']}
 
 
-# In[12]:
+# In[3]:
 
 
 dicionario = {}
@@ -54,7 +54,7 @@ for key, item in x_listas.items():
         dicionario[f'{key}_{value}'] = 0
 
 
-# In[15]:
+# In[4]:
 
 
 for item in x_numericos:
@@ -77,14 +77,60 @@ for item in x_tf:
 for item in x_listas:
     valor = st.selectbox(f'{item}', x_listas[item])
     dicionario[f'{item}_{valor}'] = 1
-    
+
+
+# In[5]:
+
+
+ordem_colunas = ['host_is_superhost',
+ 'host_listings_count',
+ 'latitude',
+ 'longitude',
+ 'accommodates',
+ 'bathrooms',
+ 'bedrooms',
+ 'beds',
+ #'price',
+ 'extra_people',
+ 'minimum_nights',
+ 'instant_bookable',
+ 'ano',
+ 'mes',
+ 'nr_amenities',
+ 'property_type_Apartment',
+ 'property_type_Bed and breakfast',
+ 'property_type_Condominium',
+ 'property_type_Guest suite',
+ 'property_type_Guesthouse',
+ 'property_type_Hostel',
+ 'property_type_House',
+ 'property_type_Loft',
+ 'property_type_Other',
+ 'property_type_Serviced apartment',
+ 'room_type_Entire home/apt',
+ 'room_type_Hotel room',
+ 'room_type_Private room',
+ 'room_type_Shared room',
+ 'bed_type_Others',
+ 'bed_type_Real Bed',
+ 'cancellation_policy_flexible',
+ 'cancellation_policy_moderate',
+ 'cancellation_policy_strict',
+ 'cancellation_policy_strict_14_with_grace_period']
+
+
+# In[4]:
+
+
 botao = st.button('Prever Valor do Imóvel')
 
 if botao:
     dicionario.update(x_numericos)
     dicionario.update(x_tf)
     valores_x = pd.DataFrame(dicionario, index=[0])
-    modelo = joblib.load( r'../../PYTHON/HASHTAG/data/m_extra_trees.joblib')
+    # ordenando conforme os dados de model.fit
+    valores_x = valores_x[ordem_colunas]
+    modelo = joblib.load( r'../../PYTHON/HASHTAG/data/m_extra_trees_v2.joblib')
     preco = modelo.predict(valores_x)
     st.write(preco[0])
 
